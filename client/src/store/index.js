@@ -14,6 +14,25 @@ export default function (/* { ssrContext } */) {
   const Store = new Vuex.Store({
     modules: {
       example
+    },
+    state: {
+      routes_count: null,
+      routes: [],
+      points: []
+    },
+    mutations: {
+      update (state, data) {
+        // mutate state
+        state.routes = data;
+      },
+      updatePoints (state, data) {
+        // mutate state
+        state.points = data;
+      },
+      updateCount (state, data) {
+        // mutate state
+        state.routes_count = data;
+      }
     }
   })
 
