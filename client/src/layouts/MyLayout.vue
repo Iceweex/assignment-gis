@@ -57,9 +57,9 @@
             {{restaurant}}
           </div>
         </q-collapsible>
-        <q-collapsible icon="map" label="Oblasti">
-          <div>
-            Lorem ipsum dolor sit amet...
+        <q-collapsible icon="map" :label="'Obce (' + route.towns.length + ')'">
+          <div v-for="town in route.towns" :key="town">
+            {{town}}
           </div>
         </q-collapsible>
       </q-list>
