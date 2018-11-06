@@ -18,7 +18,8 @@ export default function (/* { ssrContext } */) {
     state: {
       routes_count: null,
       routes: [],
-      points: []
+      points: [],
+      polygons: []
     },
     mutations: {
       update (state, data) {
@@ -28,6 +29,10 @@ export default function (/* { ssrContext } */) {
       updatePoints (state, data) {
         // mutate state
         state.points = data;
+      },
+      updatePolygons (state, data) {
+        // mutate state
+        state.polygons = data;
       },
       updateCount (state, data) {
         // mutate state

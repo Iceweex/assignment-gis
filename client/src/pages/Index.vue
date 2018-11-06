@@ -23,11 +23,11 @@ export default {
       zoom: 10
     })
     this.map.addControl(new mapboxgl.NavigationControl())
-  var there = this;
+  var self = this;
     this.map.on('load', function () {
-       there.loadData(),
-       there.loadPoints()
-
+       self.loadData(),
+       self.loadPoints(),
+       self.loadPolygons()
     })
   },
   methods: {
@@ -79,6 +79,37 @@ export default {
             "text-offset": [0, 0.6],
             "text-anchor": "top"
         }
+          })
+
+        })
+        .catch(() => {
+          this.$q.notify({
+            color: 'negative',
+            position: 'top',
+            message: 'Loading failed',
+            icon: 'report_problem'
+          })
+        })
+    },
+
+    loadPolygons () {
+      this.$axios.get('/api/polygons')
+        .then((response) => {
+          this.data = response.data;
+          console.log(this.data);
+          this.$store.commit('updatePolygons',response.data.features);
+          this.map.addSource('polygons', {
+            type: 'geojson',
+            data: this.data
+          })
+          this.map.addLayer({
+            'id': 'polygons',
+            type: 'fill',
+            source: 'polygons',
+            'paint': {
+            'fill-color': '#088',
+            'fill-opacity': 0.3
+            }
           })
 
         })

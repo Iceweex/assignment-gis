@@ -35,14 +35,14 @@
         <q-list-header>Cyklotrasy</q-list-header>
 
    <q-card  class="q-ma-sm" v-for="route in this.$store.state.routes" :key="route.properties.f1">
-      <p class="route-title" style="padding: 15px 10px 15px 10px; font-size: 12px;" >
-        {{route.properties.f3}}
-      </p>
-      <div style="margin-top: 5px; padding: 0px 15px;">
-      <small style="padding: 1px 5px; border-radius: 5px; background-color: darkgrey" >
+      <div class="route-title" style="padding: 10px; font-size: 12px;" >
+        <p style="margin: 0px">{{route.properties.f3}}</p>
+        <div id="title-info">
+         <small style="color: black; padding: 1px 5px; border-radius: 5px; background-color: darkgrey" >
         <q-icon name="directions_bike" /> {{route.length | nodecimals}}m
       </small>
-
+        <q-btn class="float-right" round color="amber" text-color="black" size="sm" icon="directions" />
+         </div>
       </div>
 
       <q-list separator>
@@ -95,4 +95,10 @@ export default {
 </script>
 
 <style>
+
+#title-info{
+  display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
 </style>
