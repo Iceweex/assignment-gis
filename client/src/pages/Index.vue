@@ -1,10 +1,9 @@
 <template>
-  <q-page  id="map">
+  <q-page id="map">
   </q-page>
 </template>
 
 <style>
-
 </style>
 
 <script>
@@ -14,7 +13,28 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 export default {
   name: 'PageIndex',
   mounted () {
+
     mapboxgl.accessToken = 'pk.eyJ1IjoiaWNld2VleCIsImEiOiJjam1sNWk1YTQwNGg4M2xvYXJvZ2V2bDQxIn0.EAtIQ0IuhxAg1PqyqpdXng'
+
+    this.geocoder = new MapboxGeocoder({
+      accessToken: mapboxgl.accessToken,
+      bbox: [17.00674, 48.04816, 18.10674, 49.14816]
+   });
+
+  var self = this;
+   this.geocoder.on('result', function(ev) {
+    var searchResult = ev.result.geometry;
+    self.map.getSource('single-point').setData(searchResult);
+    var options = { units: 'kilometers' };
+    self.$store.state.routes.forEach(function(store, index) {
+    var data = {
+      index: index,
+      value: turf.distance(searchResult, store.geometry.coordinates[0], options)
+    }
+       self.$store.commit('distance', data);
+    });
+  });
+
     this.map = new mapboxgl.Map({
       container: 'map',
       style: 'mapbox://styles/mapbox/streets-v10',
@@ -23,30 +43,72 @@ export default {
       zoom: 10
     })
     this.map.addControl(new mapboxgl.NavigationControl())
+     this.map.addControl(this.geocoder, 'top-left');
+    this.map.addControl(new mapboxgl.GeolocateControl({
+    positionOptions: {
+        enableHighAccuracy: true
+    },
+    trackUserLocation: true
+    }))
   var self = this;
     this.map.on('load', function () {
        self.loadData(),
        self.loadPoints(),
-       self.loadPolygons()
+       self.loadPolygons(),
+
+      self.map.addSource('single-point', {
+  type: 'geojson',
+  data: {
+    type: 'FeatureCollection',
+    features: [] // Notice that initially there are no features
+  }
+});
+
+self.map.addLayer({
+  id: 'point',
+  source: 'single-point',
+  type: 'circle',
+  paint: {
+    'circle-radius': 10,
+    'circle-color': '#007cbf',
+    'circle-stroke-width': 3,
+    'circle-stroke-color': '#fff'
+  }
+});
+
     })
   },
   methods: {
+    test(id){
+       this.map.setFeatureState({source: 'routes', id: id}, { hover: true});
+    },
     loadData () {
       this.$axios.get('/api/data')
         .then((response) => {
           console.log(response.data);
           this.data = response.data;
           this.$store.commit('update',response.data.features);
-          this.map.addSource('tom', {
+          this.map.addSource('routes', {
             type: 'geojson',
             data: this.data
           })
           this.map.addLayer({
-            'id': 'some id',
+            'id': 'routes',
             type: 'line',
-            source: 'tom'
+            source: 'routes',
+            "paint": {
+            "line-color": ["case",
+                ["boolean", ["feature-state", "hover"], false],
+                "red",
+                "#000000"
+              ],
+            "line-width": ["case",
+                ["boolean", ["feature-state", "hover"], false],
+                3,
+                1
+              ]
+            }
           })
-
         })
         .catch(() => {
           this.$q.notify({

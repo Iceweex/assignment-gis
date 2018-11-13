@@ -6,7 +6,7 @@ const { Client, Query } = require('pg')
 var pgp = require('pg-promise')
 
 // Setup connection
-var username = "Iceweex" // sandbox username
+var username = "postgres" // sandbox username
 var password = "" // read only privileges on our table
 var host = "localhost:5432"
 var database = "gis" // database name
@@ -14,7 +14,8 @@ var conString = "postgres://"+username+":"+password+"@"+host+"/"+database; // Yo
 // var db = pgp('postgres://postgres:@localhost:5432/postgis_24_sample');
 
 // Set up your database query to display GeoJSON
-var coffee_query = "SELECT row_to_json(fc) FROM ( SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(lg.way)::json As geometry,ST_Length(geography(lg.way)) as length, row_to_json((osm_id, z_order, name)) As properties, ARRAY(SELECT p.name FROM planet_osm_point p WHERE ST_DWithin(geography(p.way), geography(lg.way), 1000) AND  p.amenity = 'restaurant') as restaurants, ARRAY(SELECT p.name FROM planet_osm_polygon p WHERE ST_Intersects(geography(p.way), geography(lg.way)) AND  p.place = 'suburb') as towns FROM planet_osm_line As lg WHERE lg.route = 'bicycle') As f) As fc";
+
+var coffee_query = "SELECT row_to_json(fc) FROM ( SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(lg.way)::json As geometry,ST_Length(geography(lg.way)) as length, row_to_json((osm_id, z_order, name)) As properties, ARRAY(SELECT p.name FROM planet_osm_point p WHERE ST_DWithin(geography(p.way), geography(lg.way), 1000) AND  p.amenity = 'restaurant') as restaurants, ARRAY(SELECT p.name FROM planet_osm_polygon p WHERE ST_Intersects(geography(p.way), geography(lg.way)) AND  p.place = 'suburb') as towns,  ABS(lg.osm_id) AS id FROM planet_osm_line As lg WHERE lg.route = 'bicycle') As f) As fc";
 var points_query = "SELECT row_to_json(fc) FROM ( SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(lg.way)::json As geometry, row_to_json((osm_id, name)) As properties FROM planet_osm_point As lg WHERE lg.amenity = 'restaurant') As f) As fc";
 var polygons_query = "SELECT row_to_json(fc) FROM ( SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(lg.way)::json As geometry, row_to_json((osm_id, name)) As properties FROM planet_osm_polygon As lg WHERE lg.place = 'suburb') As f) As fc";
 

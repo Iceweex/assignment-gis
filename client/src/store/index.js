@@ -37,6 +37,10 @@ export default function (/* { ssrContext } */) {
       updateCount (state, data) {
         // mutate state
         state.routes_count = data;
+      },
+
+      distance(state, data){
+            Vue.set(state.routes[data.index], 'distance' , data.value)
       }
     }
   })

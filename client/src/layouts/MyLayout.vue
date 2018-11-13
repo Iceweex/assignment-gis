@@ -34,14 +34,14 @@
       >
         <q-list-header>Cyklotrasy</q-list-header>
 
-   <q-card  class="q-ma-sm" v-for="route in this.$store.state.routes" :key="route.properties.f1">
+   <q-card  class="q-ma-sm" v-for="route in sortedArray" :key="route.geometry.id">
       <div class="route-title" style="padding: 10px; font-size: 12px;" >
         <p style="margin: 0px">{{route.properties.f3}}</p>
         <div id="title-info">
          <small style="color: black; padding: 1px 5px; border-radius: 5px; background-color: darkgrey" >
         <q-icon name="directions_bike" /> {{route.length | nodecimals}}m
       </small>
-        <q-btn class="float-right" round color="amber" text-color="black" size="sm" icon="directions" />
+        <q-btn @click="highlight(route.id)"  class="float-right" round color="amber" text-color="black" size="sm" icon="directions" />
          </div>
       </div>
 
@@ -53,7 +53,7 @@
         </q-collapsible>
 
         <q-collapsible icon="restaurant" :label="'Reštaurácie (' + route.restaurants.length + ')'">
-          <div v-for="restaurant in route.restaurants" :key="restaurant">
+          <div v-for="(restaurant, index) in route.restaurants" :key="index">
             {{restaurant}}
           </div>
         </q-collapsible>
@@ -68,7 +68,7 @@
     </q-layout-drawer>
 
     <q-page-container>
-      <router-view />
+      <router-view ref="index"/>
     </q-page-container>
   </q-layout>
 </template>
@@ -83,13 +83,31 @@ export default {
       leftDrawerOpen: this.$q.platform.is.desktop
     }
   },
+  computed: {
+
+  sortedArray: function() {
+    function compare(a, b) {
+      if (a.distance < b.distance)
+        return -1;
+      if (a.distance > b.distance)
+        return 1;
+      return 0;
+    }
+
+    return this.$store.state.routes.sort(compare);
+  }
+  },
   filters: {
   nodecimals: function (value) {
     return Math.ceil(value)
   }
 },
   methods: {
-    openURL
+    openURL,
+    highlight(id){
+      console.log("clicked: " , id);
+      this.$refs.index.test(id)
+    }
   }
 }
 </script>
