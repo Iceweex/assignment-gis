@@ -81,6 +81,25 @@ self.map.addLayer({
   methods: {
     test(id){
        this.map.setFeatureState({source: 'routes', id: id}, { hover: true});
+       this.$axios.post('/api/touchdata', {
+          id: id
+      }).then((response) => {
+
+          var self = this;
+          response.data.forEach(function(singleElement){
+              console.log(singleElement.id);
+              self.map.setFeatureState({source: 'routes', id: singleElement.id}, { touch: true});
+          });
+
+        })
+        .catch(() => {
+          this.$q.notify({
+            color: 'negative',
+            position: 'top',
+            message: 'Loading failed',
+            icon: 'report_problem'
+          })
+        })
     },
     loadData () {
       this.$axios.get('/api/data')
@@ -98,8 +117,50 @@ self.map.addLayer({
             source: 'routes',
             "paint": {
             "line-color": ["case",
+            ["boolean", ["feature-state", "touch"], false],
+            "red",
+            ["boolean", ["feature-state", "hover"], false],
+            "#D0FF14",
+            "#000000"],
+            "line-width": ["case",
+            ["boolean", ["feature-state", "hover"], false],
+            3,
+            ["boolean", ["feature-state", "touch"], false],
+            3,
+            1 ]
+            }
+          })
+        })
+        .catch(() => {
+          this.$q.notify({
+            color: 'negative',
+            position: 'top',
+            message: 'Loading failed',
+            icon: 'report_problem'
+          })
+        })
+    },
+
+    newData(towns){
+      console.log('towns:', towns)
+         if(towns.length == 0){
+       this.$axios.get('/api/data').then((response) => {
+          this.data = response.data;
+          this.map.removeLayer('routes');
+          this.map.removeSource('routes');
+          this.$store.commit('update',response.data.features);
+          this.map.addSource('routes', {
+            type: 'geojson',
+            data: this.data
+          })
+          this.map.addLayer({
+            'id': 'routes',
+            type: 'line',
+            source: 'routes',
+            "paint": {
+            "line-color": ["case",
                 ["boolean", ["feature-state", "hover"], false],
-                "red",
+                "green",
                 "#000000"
               ],
             "line-width": ["case",
@@ -118,6 +179,48 @@ self.map.addLayer({
             icon: 'report_problem'
           })
         })
+
+
+         }else{
+
+       this.$axios.post('/api/updatedata', {
+          data: towns
+      }).then((response) => {
+          this.data = response.data;
+          this.map.removeLayer('routes');
+          this.map.removeSource('routes');
+          this.$store.commit('update',response.data.features);
+          this.map.addSource('routes', {
+            type: 'geojson',
+            data: this.data
+          })
+          this.map.addLayer({
+            'id': 'routes',
+            type: 'line',
+            source: 'routes',
+            "paint": {
+            "line-color": ["case",
+                ["boolean", ["feature-state", "hover"], false],
+                "green",
+                "#000000"
+              ],
+            "line-width": ["case",
+                ["boolean", ["feature-state", "hover"], false],
+                3,
+                1
+              ]
+            }
+          })
+        })
+        .catch(() => {
+          this.$q.notify({
+            color: 'negative',
+            position: 'top',
+            message: 'Loading failed',
+            icon: 'report_problem'
+          })
+        })
+         }
     },
 
     loadPoints () {

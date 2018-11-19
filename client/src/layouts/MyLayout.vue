@@ -32,7 +32,12 @@
         link
         inset-delimiter
       >
-        <q-list-header>Cyklotrasy</q-list-header>
+
+      <q-list-header>Obce</q-list-header>
+
+      <q-checkbox style="width: 100%; padding: 0px 10px;" v-for="area in areas" :key="area.properties.f1" v-model="checkArray" :label="area.properties.f2" @input="newData()" color="primary" :val="area.properties.f1" />
+
+        <q-list-header style="margin-top: 10px">Cyklotrasy</q-list-header>
 
    <q-card  class="q-ma-sm" v-for="route in sortedArray" :key="route.geometry.id">
       <div class="route-title" style="padding: 10px; font-size: 12px;" >
@@ -46,15 +51,14 @@
       </div>
 
       <q-list separator>
-        <q-collapsible icon="location_city" label="Pamiatky">
-          <div>
-            Lorem ipsum dolor sit amet...
-          </div>
-        </q-collapsible>
-
         <q-collapsible icon="restaurant" :label="'Reštaurácie (' + route.restaurants.length + ')'">
           <div v-for="(restaurant, index) in route.restaurants" :key="index">
-            {{restaurant}}
+            {{restaurant.name}}
+            <small>
+              <q-chip class="float-right" dense color="secondary" >
+            {{restaurant.distance | nodecimals}}m
+            </q-chip>
+              </small>
           </div>
         </q-collapsible>
         <q-collapsible icon="map" :label="'Obce (' + route.towns.length + ')'">
@@ -80,10 +84,15 @@ export default {
   name: 'MyLayout',
   data () {
     return {
-      leftDrawerOpen: this.$q.platform.is.desktop
+      leftDrawerOpen: this.$q.platform.is.desktop,
+      checkArray: []
     }
   },
   computed: {
+
+  areas: function(){
+      return this.$store.state.polygons
+  },
 
   sortedArray: function() {
     function compare(a, b) {
@@ -104,6 +113,11 @@ export default {
 },
   methods: {
     openURL,
+
+    newData(){
+      this.$refs.index.newData(this.checkArray)
+    },
+
     highlight(id){
       console.log("clicked: " , id);
       this.$refs.index.test(id)
