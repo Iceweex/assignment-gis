@@ -1,16 +1,22 @@
-# General course assignment
+# Opis projektu
 
-Build a map-based application, which lets the user see geo-based data on a map and filter/search through it in a meaningfull way. Specify the details and build it in your language of choice. The application should have 3 components:
+Doménu, ktorú som si v tomto projekte zvolil je práca s cyklotrasami. Aplikácia by mala slúžiť na vyhľadávanie cyklotrás vo zvolených oblastiach, pričom ukazuje aj reštaurácie v blízkosti každej cyklostrasy v okruhu 1km. V aplikácií sa vyhľadané cyklotrasy zoraďujú od podľa vzdialenosti od miesta, ktoré si používateľ zvolí vo vyhľadávacom formuláry. Vyhľadané cyklotrasy sa dajú zvýrazňovať, pričom sú zvýraznené aj také cyklotrasy, s ktorými sa požadovaná cyklotrasa dotýka. Ku každej cyklotrase sa uvádza aj jej dĺžka a obce, cez ktoré prechádza. 
 
-1. Custom-styled background map, ideally built with [mapbox](http://mapbox.com). Hard-core mode: you can also serve the map tiles yourself using [mapnik](http://mapnik.org/) or similar tool.
-2. Local server with [PostGIS](http://postgis.net/) and an API layer that exposes data in a [geojson format](http://geojson.org/).
-3. The user-facing application (web, android, ios, your choice..) which calls the API and lets the user see and navigate in the map and shows the geodata. You can (and should) use existing components, such as the Mapbox SDK, or [Leaflet](http://leafletjs.com/).
+## Opis scenárov 
 
-## Example projects
+-Základné zobrazenie dát
 
-- Showing nearby landmarks as colored circles, each type of landmark has different circle color and the more interesting the landmark is, the bigger the circle. Landmarks are sorted in a sidebar by distance to the user. It is possible to filter only certain landmark types (e.g., castles).
-
-- Showing bicykle roads on a map. The roads are color-coded based on the road difficulty. The user can see various lists which help her choose an appropriate road, e.g. roads that cross a river, roads that are nearby lakes, roads that pass through multiple countries, etc.
+```javascript
+var default_query = `SELECT row_to_json(fc)
+FROM (
+    SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features
+    FROM (
+        SELECT 'Feature' As type, ST_AsGeoJSON(lg.way)::json As geometry, ST_Length(geography(lg.way)) as length, row_to_json((osm_id, z_order, name)) As properties, lg.id AS id
+        FROM planet_osm_line As lg
+        WHERE lg.route = 'bicycle'
+    ) As f)
+As fc`
+```
 
 ## Data sources
 
