@@ -1,3 +1,7 @@
+Meno: Miloslav Smetana
+
+AIS: 72360
+
 # Opis projektu
 
 Doménu, ktorú som si v tomto projekte zvolil je práca s cyklotrasami. Aplikácia by mala slúžiť na vyhľadávanie cyklotrás vo zvolených oblastiach, pričom ukazuje aj reštaurácie v blízkosti každej cyklostrasy v okruhu 1km. V aplikácií sa vyhľadané cyklotrasy zoraďujú podľa vzdialenosti od miesta, ktoré si používateľ zvolí vo vyhľadávacom formuláry. Vyhľadané cyklotrasy sa dajú zvýrazňovať, pričom sú zvýraznené aj také cyklotrasy, s ktorými sa požadovaná cyklotrasa dotýka. Ku každej cyklotrase sa uvádza aj jej dĺžka a obce, cez ktoré prechádza. 
