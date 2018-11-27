@@ -136,11 +136,9 @@ V rámci projektu som pracoval len s dátami získanými z [Open Street Maps](ht
 
 ## Indexy
 
-`CREATE INDEX line_route_index ON planet_osm_line btree(route)`
-
-`CREATE INDEX line_bicycle_index ON planet_osm_line gist(way) WHERE route = 'bicycle'`
-
-`CREATE INDEX polygon_admin_index ON planet_osm_polygon gist(way) WHERE boundary = 'administrative' AND admin_level = '10'`
+`CREATE INDEX line_route_index ON planet_osm_line (route);
+CREATE INDEX line_bicycle_index ON planet_osm_line USING gist(way) WHERE route = 'bicycle';
+CREATE INDEX polygon_admin_index ON planet_osm_polygon USING gist(way) WHERE boundary = 'administrative' AND admin_level = '10';`
 
 ## Použité technológie
 
