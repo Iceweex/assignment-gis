@@ -70,7 +70,8 @@ module.exports = function (ctx) {
         'QCardActions',
         'QCollapsible',
         'QCheckbox',
-        'QChip'
+        'QChip',
+        'QInfiniteScroll'
       ],
       directives: [
         'Ripple'

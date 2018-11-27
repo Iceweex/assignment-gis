@@ -12,6 +12,11 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 
 export default {
   name: 'PageIndex',
+  data() {
+    return {
+      searching: false
+    }
+  },
   mounted () {
 
     mapboxgl.accessToken = 'pk.eyJ1IjoiaWNld2VleCIsImEiOiJjam1sNWk1YTQwNGg4M2xvYXJvZ2V2bDQxIn0.EAtIQ0IuhxAg1PqyqpdXng'
@@ -25,14 +30,10 @@ export default {
    this.geocoder.on('result', function(ev) {
     var searchResult = ev.result.geometry;
     self.map.getSource('single-point').setData(searchResult);
-    var options = { units: 'kilometers' };
-    self.$store.state.routes.forEach(function(store, index) {
-    var data = {
-      index: index,
-      value: turf.distance(searchResult, store.geometry.coordinates[0], options)
+    if(!self.searching){
+      self.searching = true;
+      self.sortData(searchResult)
     }
-       self.$store.commit('distance', data);
-    });
   });
 
     this.map = new mapboxgl.Map({
@@ -79,12 +80,55 @@ self.map.addLayer({
     })
   },
   methods: {
+
+    sortData(point){
+        this.$axios.post('/api/sortdata', {
+          data: point
+        }).then((response) => {
+          this.searching = false;
+          this.data = response.data;
+          this.map.removeLayer('routes');
+          this.map.removeSource('routes');
+          this.$store.commit('update',response.data.features);
+          this.map.addSource('routes', {
+            type: 'geojson',
+            data: this.data
+          })
+          this.map.addLayer({
+            'id': 'routes',
+            type: 'line',
+            source: 'routes',
+            "paint": {
+            "line-color": ["case",
+            ["boolean", ["feature-state", "touch"], false],
+            "red",
+            ["boolean", ["feature-state", "hover"], false],
+            "#D0FF14",
+            "#000000"],
+            "line-width": ["case",
+            ["boolean", ["feature-state", "hover"], false],
+            3,
+            ["boolean", ["feature-state", "touch"], false],
+            3,
+            1 ]
+            }
+          })
+        })
+        .catch(() => {
+          this.$q.notify({
+            color: 'negative',
+            position: 'top',
+            message: 'Loading failed',
+            icon: 'report_problem'
+          })
+        })
+    },
+
     test(id){
-       this.map.setFeatureState({source: 'routes', id: id}, { hover: true});
+       this.map.setFeatureState({source: 'routes', id: Math.abs(id)}, { hover: true});
        this.$axios.post('/api/touchdata', {
           id: id
       }).then((response) => {
-
           var self = this;
           response.data.forEach(function(singleElement){
               console.log(singleElement.id);
@@ -141,8 +185,8 @@ self.map.addLayer({
         })
     },
 
-    newData(towns){
-      console.log('towns:', towns)
+    newData(towns, id, turn){
+      this.map.setFeatureState({source: 'polygons', id: Math.abs(id)}, { hover: turn});
          if(towns.length == 0){
        this.$axios.get('/api/data').then((response) => {
           this.data = response.data;
@@ -158,16 +202,18 @@ self.map.addLayer({
             type: 'line',
             source: 'routes',
             "paint": {
-            "line-color": ["case",
-                ["boolean", ["feature-state", "hover"], false],
-                "green",
-                "#000000"
-              ],
+             "line-color": ["case",
+            ["boolean", ["feature-state", "touch"], false],
+            "red",
+            ["boolean", ["feature-state", "hover"], false],
+            "#D0FF14",
+            "#000000"],
             "line-width": ["case",
-                ["boolean", ["feature-state", "hover"], false],
-                3,
-                1
-              ]
+            ["boolean", ["feature-state", "hover"], false],
+            3,
+            ["boolean", ["feature-state", "touch"], false],
+            3,
+            1 ]
             }
           })
         })
@@ -182,14 +228,13 @@ self.map.addLayer({
 
 
          }else{
-
        this.$axios.post('/api/updatedata', {
           data: towns
       }).then((response) => {
           this.data = response.data;
-          this.map.removeLayer('routes');
-          this.map.removeSource('routes');
-          this.$store.commit('update',response.data.features);
+            this.$store.commit('update',response.data.features);
+            this.map.removeLayer('routes');
+            this.map.removeSource('routes');
           this.map.addSource('routes', {
             type: 'geojson',
             data: this.data
@@ -200,15 +245,17 @@ self.map.addLayer({
             source: 'routes',
             "paint": {
             "line-color": ["case",
-                ["boolean", ["feature-state", "hover"], false],
-                "green",
-                "#000000"
-              ],
+            ["boolean", ["feature-state", "touch"], false],
+            "red",
+            ["boolean", ["feature-state", "hover"], false],
+            "#D0FF14",
+            "#000000"],
             "line-width": ["case",
-                ["boolean", ["feature-state", "hover"], false],
-                3,
-                1
-              ]
+            ["boolean", ["feature-state", "hover"], false],
+            3,
+            ["boolean", ["feature-state", "touch"], false],
+            3,
+            1 ]
             }
           })
         })
@@ -272,7 +319,10 @@ self.map.addLayer({
             type: 'fill',
             source: 'polygons',
             'paint': {
-            'fill-color': '#088',
+             'fill-color': ["case",
+            ["boolean", ["feature-state", "hover"], false],
+            "#D0FF14",
+            "#088"],
             'fill-opacity': 0.3
             }
           })

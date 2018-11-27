@@ -41,6 +41,14 @@ export default function (/* { ssrContext } */) {
 
       distance(state, data){
             Vue.set(state.routes[data.index], 'distance' , data.value)
+      },
+
+      updateRestaurants(state, data){
+        Vue.set(state.routes[data.index], 'restaurants' , data.value)
+      },
+
+      updateTowns(state, data){
+        Vue.set(state.routes[data.index], 'towns' , data.value)
       }
     }
   })
