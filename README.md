@@ -4,9 +4,9 @@ Doménu, ktorú som si v tomto projekte zvolil je práca s cyklotrasami. Apliká
 
 ## Opis scenárov 
 
-#### Základné zobrazenie cyklotrás, reštaurácií a obcí
+### Základné zobrazenie cyklotrás, reštaurácií a obcí
 
-##### Príklad query pre získanie všetkých cyklotrás:
+#### Príklad query pre získanie všetkých cyklotrás:
 
 ```javascript
 var default_query = `SELECT row_to_json(fc)
@@ -21,14 +21,14 @@ FROM (
 As fc`
 ```
 
-##### Použité geografické funkcie:
+#### Použité geografické funkcie:
 - `ST_Length` - vráti dĺžku cyklotrasy
 - `ST_Union` - zjednotí cyklotrasy s rovnakým osm_id
 - `ST_Simplify` - zjednodušenie polygónov pre rýchejšie spracovanie
 
-#### Získanie všetkých reštaurácií v okolí 1km od zvolenej cyklotrasy
+### Získanie všetkých reštaurácií v okolí 1km od zvolenej cyklotrasy
 
-##### Príklad query:
+#### Príklad query:
 ```javascript
 var restaurant_query = {
     text: `SELECT  b.name, ST_Distance(geography(p.way), geography(b.way)) as distance
@@ -38,13 +38,13 @@ var restaurant_query = {
 }
 ```
 
-##### Použité geografické funkcie:
+#### Použité geografické funkcie:
 - `ST_Distance` - vráti vzdialenosť reštaurácie od zvolenej cyklotrasy
 - `ST_DWithin` - vráti kladnú odpoveď ak sa reštaurácia nachádza 1km od zvolenej cyklotrasy
 
-#### Získanie všetkých obcí, cez ktoré zvolená cyklotrasa prechádza
+### Získanie všetkých obcí, cez ktoré zvolená cyklotrasa prechádza
 
-##### Príklad query:
+#### Príklad query:
 ```javascript
 var town_query ={
     text: `SELECT  b.name
@@ -54,12 +54,12 @@ var town_query ={
 }
 ```
 
-##### Použité geografické funkcie:
+#### Použité geografické funkcie:
 - `ST_Intersects` - vráti kladnú odpoveď, ak cez obec prechádza zvolená cyklotrasa
 
-#### Získanie všetkých cyklotrás, s ktorými sa zvolená cyklotrasa dotýka 
+### Získanie všetkých cyklotrás, s ktorými sa zvolená cyklotrasa dotýka 
 
-##### Príklad query:
+#### Príklad query:
 ```javascript
 var touch_query = {
     text: `SELECT ABS(p.osm_id) AS id
@@ -69,12 +69,12 @@ var touch_query = {
 }
 ```
 
-##### Použité geografické funkcie:
+#### Použité geografické funkcie:
 - `ST_Touches` - vráti kladnú odpoveď, ak sa cyklotrasy dotýka zvolená cyklotrasa 
 
-#### Vyfiltrovanie len takých cyklotrás, ktoré sa nachádzajú len vo vybratých obciach
+### Vyfiltrovanie len takých cyklotrás, ktoré sa nachádzajú len vo vybratých obciach
 
-##### Príklad query:
+#### Príklad query:
 ```javascript
 var update_query ={
     text: `SELECT row_to_json(fc)
@@ -94,12 +94,12 @@ var update_query ={
     }
 ```
 
-##### Použité geografické funkcie:
+#### Použité geografické funkcie:
 - `ST_Contains` - vráti kladnú podpoveď, ak sa cyklotrasa nachádza vo zvolenej obci
 
-#### Zoradenie cyklotrás podľa vzdialenosti od bodu určenia
+### Zoradenie cyklotrás podľa vzdialenosti od bodu určenia
 
-##### Príklad query:
+#### Príklad query:
 ```javascript
 var sort_query = {
     text: `SELECT row_to_json(fc)
@@ -116,7 +116,7 @@ var sort_query = {
 }
 ```
 
-##### Použité geografické funkcie:
+#### Použité geografické funkcie:
 
 - `ST_Distance` - slúží na výpočet vzdialenosti požadovaného bodu od cyklotrasy
 - `ST_Length` - vráti dĺžku cyklotrasy
@@ -126,9 +126,9 @@ var sort_query = {
 
 ## Informácie o dátach
 
-V rámci projektu som pracoval len s dátami získanými z [Open Street Maps](https://www.openstreetmap.org/). Ako oblasť som si zvolil  skoro celé západné Slovensko (1.36 GB). Pri analyzovaní dát som zistil, že niektoré osm_id, teda identifikačné čísla záznamov sa opakujú a preto som v rámci query využil aj `ST_UNION` funkciu, ktorá zjednocuje geografické dáta.  
+V rámci projektu som pracoval len s dátami získanými z [Open Street Maps](https://www.openstreetmap.org/). Ako oblasť som si zvolil  skoro celé západné Slovensko (1.36 GB). Na importovanie stiahnutého súboru .osm som použil nástroj `osm2pgsql`. Generovanie GeoJSON je zabezpečené pomocou funkcie `ST_AsGeoJSON`, ktorá je potrebná aby dáta boli v správnom formáte pre zobrazenie. Pri analyzovaní dát som zistil, že niektoré osm_id, teda identifikačné čísla záznamov sa opakujú a preto som v rámci query využil aj `ST_UNION` funkciu, ktorá zjednocuje geografické dáta.  
 
-##### Použité dáta:
+#### Použité dáta:
 
 - planet_osm_line - tabuľku čiar som použil pre zísaknie dát o cyklotrasách (way, osm_id, name, route)
 - planet_osm_point - tabuľku bodov som použil pre zísaknie dát o reštauráciach (way, osm_id, name, amenity)
@@ -136,9 +136,18 @@ V rámci projektu som pracoval len s dátami získanými z [Open Street Maps](ht
 
 ## Indexy
 
-`CREATE INDEX line_route_index ON planet_osm_line (route);
+```
+CREATE INDEX point_amenity_index ON planet_osm_point (amenity);
+```
+```
+CREATE INDEX line_route_index ON planet_osm_line (route);
+```
+```
 CREATE INDEX line_bicycle_index ON planet_osm_line USING gist(way) WHERE route = 'bicycle';
-CREATE INDEX polygon_admin_index ON planet_osm_polygon USING gist(way) WHERE boundary = 'administrative' AND admin_level = '10';`
+```
+```
+CREATE INDEX polygon_admin_index ON planet_osm_polygon USING gist(way) WHERE boundary = 'administrative' AND admin_level = '10';
+```
 
 ## Použité technológie
 
