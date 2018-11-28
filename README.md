@@ -160,7 +160,24 @@ CREATE INDEX polygon_admin_index ON planet_osm_polygon USING gist(way) WHERE bou
 - [Mapbox](https://www.mapbox.com/) - interaktívna mapa na zobrazovanie dát 
 - [PostGis](https://postgis.net/) - priestorové rozšírenie databázy [PostgreSQL](https://www.postgresql.org/)
 
+## Vlastný štýl pozadia
+
+- Pridanie terrénej vrstvy
+- Fialová farba označuje národné parky
+
 ## Screenshoty z aplikácie
+
+#### Po pridaní vlastného štýlu
+
+![aplication pdt_screenshot1][pdt_screenshot1]
+
+[pdt_screenshot1]: https://github.com/Iceweex/assignment-gis/blob/master/pdt1.PNG "Aplication pdt_screenshot1"
+
+![aplication pdt_screenshot2][pdt_screenshot2]
+
+[pdt_screenshot2]: https://github.com/Iceweex/assignment-gis/blob/master/pdt2.PNG "Aplication pdt_screenshot2"
+
+#### Pred pridaním vlastného štýlu
 
 ![aplication screenshot1][screenshot1]
 
